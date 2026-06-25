@@ -1,3 +1,0 @@
-[console_scripts]
-relay-task = relayos_mcp.cli:main
-relayos-mcp = relayos_mcp.server:main
