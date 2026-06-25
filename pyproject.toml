@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relayos-mcp"
+version = "0.1.0a1"
+description = "Claude Code plugin — turn Claude into an AI team lead with RelayOS agents"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+authors = [{name = "jjjjjjjjnnjnn"}]
+keywords = ["mcp", "claude-code", "ai-agents", "orchestration", "relayos"]
+
+dependencies = [
+    "relayos>=0.2.0a15",
+]
+
+[project.optional-dependencies]
+mcp = [
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+relayos-mcp = "relayos_mcp.mcp_server:main"
+relay-task = "relayos_mcp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["relayos_mcp*"]
