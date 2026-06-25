@@ -20,10 +20,11 @@ import time
 logger = logging.getLogger(__name__)
 
 try:
-    from mcp.server import Server
+    from mcp.server import Server, NotificationOptions
+    from mcp.server.models import InitializationOptions
     from mcp.server.stdio import stdio_server
     from mcp.types import (
-        CallToolRequest, ListToolsRequest, Tool, TextContent,
+        Tool, TextContent,
     )
     MCP_OK = True
 except ImportError:
@@ -50,7 +51,7 @@ def ask_agent(agent: str, prompt: str, timeout: int = 120) -> str:
     try:
         result = subprocess.run(
             [binary], input=prompt,
-            capture_output=True, text=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
             timeout=timeout, shell=(sys.platform == "win32"),
         )
         stdout = result.stdout.strip()
@@ -69,7 +70,7 @@ def run_command(command: str, timeout: int = 120) -> str:
     try:
         result = subprocess.run(
             command, shell=True,
-            capture_output=True, text=True, timeout=timeout,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout,
         )
         out = result.stdout.strip()
         err = result.stderr.strip()
@@ -127,9 +128,8 @@ def create_server() -> Server:
         return tools
 
     @app.call_tool()
-    async def call_tool(req: CallToolRequest) -> list[TextContent]:
-        name = req.params.name
-        args = req.params.arguments or {}
+    async def call_tool(name: str, arguments: dict | None = None) -> list[TextContent]:
+        args = arguments or {}
 
         if name == "run_command":
             cmd = args.get("command", "")
@@ -154,7 +154,22 @@ def main():
     """Entry point: start MCP server over stdio."""
     logging.basicConfig(level=logging.WARNING, format="%(message)s")
     app = create_server()
-    asyncio.run(stdio_server(app))
+
+    async def _run():
+        async with stdio_server() as (read, write):
+            await app.run(
+                read, write,
+                InitializationOptions(
+                    server_name="relayos-mcp",
+                    server_version="0.1.0a1",
+                    capabilities=app.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={},
+                    ),
+                ),
+            )
+
+    asyncio.run(_run())
 
 
 if __name__ == "__main__":
