@@ -1,41 +1,34 @@
-# RelayOS MCP
+# relayos-mcp
 
-**Turn Claude Code into an AI team lead.**
+**Claude Code 即 AI 团队指挥。** 你说需求，我规划分工，免费终端干重活。
 
-Claude handles complex decisions, code review, and architecture.  
-RelayOS agents (mimo, opencode, local tools) execute the grunt work.  
-Free models do the heavy lifting, Claude does the thinking.
+## 一句话
 
-## Install
-
-```bash
-pip install relayos-mcp
+```
+你 -> Claude Code(我) -> MCP tools -> mimo / opencode / 本地命令
+                    |
+              我负责计划、分配、审核
+              免费模型负责执行
+              花最少的钱,干最高质量的活
 ```
 
-## Usage
-
-### Option 1: CLI commands
+## 安装
 
 ```bash
-# List available agents
-relay-task list-agents
-
-# Run a local command via relay
-relay-task run "pytest tests/ -v"
-
-# Execute a multi-step task
-relay-task run-task '{
-  "description": "Test and lint",
-  "actions": [
-    {"agent": "local", "command": "pytest tests/ -v"},
-    {"agent": "mimo", "command": "Review the output"}
-  ]
-}'
+pip install relayos-mcp[mcp]
 ```
 
-### Option 2: MCP Server (Claude Code integration)
+## 验证
 
-Configure Claude Code to use the RelayOS MCP server:
+```bash
+relay-task agents
+```
+
+应该看到 `[ok] mimo`、`[ok] opencode`、`[ok] claude` 等。
+
+## 配置 Claude Code
+
+在 `~/.claude/settings.json` 中添加：
 
 ```json
 {
@@ -48,48 +41,30 @@ Configure Claude Code to use the RelayOS MCP server:
 }
 ```
 
-Then in Claude Code you can use:
-- `relay_execute` — Run a command via any agent
-- `relay_run_task` — Multi-step task with multiple agents
-- `relay_list_agents` — See available agents
+重启后我就能调用这些工具：
 
-### Option 3: @relay commands (Claude Code prompt)
+| 工具 | 用途 | 成本 |
+|------|------|------|
+| `run_command` | 执行 Shell 命令 | 免费 |
+| `ask_mimo` | 问 Mimo AI | 免费 |
+| `ask_opencode` | 问 OpenCode AI | 免费 |
+| `ask_claude` | 问 Claude (如果装了) | 收费 |
 
-Add this to your Claude Code project instructions:
-
-```
-You can delegate tasks to RelayOS agents:
-- @relay run <command> — Run a shell command via local agent
-- @relay run-task <json> — Multi-step task with agent orchestration
-- @relay list-agents — See available agents
-- @relay status <task-id> — Check task progress
-
-Use relay for: testing, linting, file operations, API calls, deployments.
-Keep Claude for: complex decisions, code review, architecture, debugging.
-```
-
-## Architecture
+## 工作流程
 
 ```
-Claude Code (decisions, review, architecture)
-    │
-    ├── MCP tools: relay_execute / relay_run_task / relay_list_agents
-    │
-    ▼
-RelayOS MCP Server
-    │
-    ├── local agent — run shell commands
-    ├── mimo agent — AI-powered task execution
-    ├── opencode agent — code-aware CLI tasks
-    └── claude agent — complex Claude-powered work
+你: "审查这个 PR，跑测试，修 bug"
+ |
+我: 分析 PR -> 发现需要:
+    |- ask_mimo("审查 security 问题")     <- 免费
+    |- run_command("pytest tests/")      <- 免费
+    |- 我自己修 bug + 代码 review         <- Claude 负责
+ |
+你: 收到最终报告
 ```
 
-## Development
+## 原则
 
-```bash
-# Install in dev mode
-pip install -e ".[mcp]"
-
-# Run tests
-pytest tests/
-```
+- **省钱**：单调工作让免费模型做，Claude 只做决策和审核
+- **省时**：并行派活，不用等我一个个做完
+- **质量**：我负责规划分工和质量把关

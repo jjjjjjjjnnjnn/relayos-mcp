@@ -1,0 +1,90 @@
+Metadata-Version: 2.4
+Name: relayos-mcp
+Version: 0.1.0a1
+Summary: MCP server — Claude Code calls AI agents (mimo, opencode) as tools
+Author: jjjjjjjjnnjnn
+License: Apache-2.0
+Keywords: mcp,claude-code,ai-agents
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: mcp
+Requires-Dist: mcp>=1.0.0; extra == "mcp"
+Dynamic: license-file
+
+# relayos-mcp
+
+**Claude Code 即 AI 团队指挥。** 你说需求，我规划分工，免费终端干重活。
+
+## 一句话
+
+```
+你 → Claude Code(我) → MCP tools → mimo / opencode / 本地命令
+                    ↓
+              你负责计划、分配、审核
+              免费模型负责执行
+              花最少的钱,干最高质量的活
+```
+
+## 安装
+
+```bash
+pip install relayos-mcp[mcp]
+```
+
+## 使用
+
+### 方式 1: MCP Server（推荐 — Claude Code 直接调用）
+
+```bash
+relayos-mcp
+```
+
+然后在 Claude Code 的 `~/.claude/settings.json` 中添加：
+
+```json
+{
+  "mcpServers": {
+    "relayos": {
+      "command": "relayos-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+重启 Claude Code 后，我就可以调用这些工具：
+
+| 工具 | 用途 | 成本 |
+|------|------|------|
+| `run_command` | 执行 Shell 命令 | 免费 |
+| `ask_mimo` | 问 Mimo AI | 免费 |
+| `ask_opencode` | 问 OpenCode AI | 免费 |
+| `ask_claude` | 问 Claude (如果装了) | 收费 |
+
+### 方式 2: CLI 直接调用
+
+```bash
+relay-task agents              # 看有哪些终端可用
+relay-task ask mimo "解释这段代码"  # 让 mimo 干活
+relay-task run "pytest -v"        # 跑命令
+```
+
+## 工作流程
+
+```
+你: "审查这个 PR，跑测试，修 bug"
+ ↓
+我: 分析 PR → 发现需要:
+    ├─ ask_mimo("审查 security 问题")    ← 免费
+    ├─ run_command("pytest tests/")     ← 免费
+    └─ 我自己修 bug + 代码 review        ← Claude 负责
+ ↓
+你: 收到最终报告
+```
+
+## 为什么这样做
+
+- **省 token**：单调工作让免费模型做，Claude 只做决策和审核
+- **省时间**：并行派活，不用等我一个个做完
+- **高质量**：我负责规划分工和质量把关

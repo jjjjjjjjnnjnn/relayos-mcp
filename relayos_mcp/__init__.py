@@ -1,9 +1,12 @@
-"""RelayOS MCP — Claude Code integrated AI agent orchestration.
+"""RelayOS MCP — Claude Code multi-agent orchestrator.
 
-Turn Claude Code into an AI team lead:
-- Claude handles decisions, code review, architecture
-- RelayOS agents (mimo, opencode, local) execute tasks
-- Free/cheap models do the grunt work, Claude does the thinking
+Claude Code (you) = team lead (planning, review, coordination)
+RelayOS agents   = workers (mimo, opencode, local — free/cheap)
+
+Usage in Claude Code:
+  - Run a specific agent:     relay-task ask <agent> <prompt>
+  - Run a shell command:      relay-task run <command>
+  - Start MCP server:         relayos-mcp
 """
 
 __version__ = "0.1.0a1"
